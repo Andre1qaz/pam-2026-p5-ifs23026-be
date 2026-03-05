@@ -8,6 +8,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
@@ -19,13 +20,10 @@ import org.delcom.module.appModule
 import org.koin.ktor.plugin.Koin
 
 fun main(args: Array<String>) {
-    val dotenv = dotenv {
-        directory = "."
-        ignoreIfMissing = false
-    }
 
-    dotenv.entries().forEach {
-        System.setProperty(it.key, it.value)
+    // Load .env (tidak error kalau tidak ada)
+    dotenv {
+        ignoreIfMissing = true
     }
 
     EngineMain.main(args)
@@ -33,15 +31,18 @@ fun main(args: Array<String>) {
 
 fun Application.module() {
 
-    val jwtSecret = environment.config.property("ktor.jwt.secret").getString()
+    // Aman walau env kosong
+    val jwtSecret = environment.config
+        .propertyOrNull("ktor.jwt.secret")
+        ?.getString()
+        ?: "testsecret"
 
     install(Authentication) {
         jwt(JWTConstants.NAME) {
             realm = JWTConstants.REALM
 
             verifier(
-                JWT
-                    .require(Algorithm.HMAC256(jwtSecret))
+                JWT.require(Algorithm.HMAC256(jwtSecret))
                     .withIssuer(JWTConstants.ISSUER)
                     .withAudience(JWTConstants.AUDIENCE)
                     .build()
