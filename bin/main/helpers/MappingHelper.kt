@@ -36,9 +36,9 @@ fun todoDAOToModel(dao: TodoDAO) = Todo(
     userId = dao.userId.toString(),
     title = dao.title,
     description = dao.description,
-    isDone =  dao.isDone,
+    isDone = dao.isDone,
     cover = dao.cover,
+    urgency = dao.urgency,    // ← tambah ini
     createdAt = dao.createdAt,
     updatedAt = dao.updatedAt
 )
-

@@ -50,10 +50,10 @@ class TodoRepository : ITodoRepository {
             description = todo.description
             cover = todo.cover
             isDone = todo.isDone
+            urgency = todo.urgency    // ← tambah ini
             createdAt = todo.createdAt
             updatedAt = todo.updatedAt
         }
-
         todoDAO.id.value.toString()
     }
 
@@ -71,6 +71,7 @@ class TodoRepository : ITodoRepository {
             todoDAO.description = newTodo.description
             todoDAO.cover = newTodo.cover
             todoDAO.isDone = newTodo.isDone
+            todoDAO.urgency = newTodo.urgency    // ← tambah ini
             todoDAO.updatedAt = newTodo.updatedAt
             true
         } else {
