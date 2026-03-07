@@ -68,7 +68,7 @@ class TodoRepository : ITodoRepository {
 
         if (todoDAO != null) {
             todoDAO.title = newTodo.title
-            todoDAO.description = newTodo.description
+            todoDAO.description = newTo do.description
             todoDAO.cover = newTodo.cover
             todoDAO.isDone = newTodo.isDone
             todoDAO.urgency = newTodo.urgency    // ← tambah ini
