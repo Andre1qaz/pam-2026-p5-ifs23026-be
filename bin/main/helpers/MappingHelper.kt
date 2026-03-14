@@ -1,10 +1,12 @@
 package org.delcom.helpers
 
 import kotlinx.coroutines.Dispatchers
-import org.delcom.dao.TodoDAO
+import org.delcom.dao.JadwalKuliahDAO
+import org.delcom.dao.KegiatanDAO
 import org.delcom.dao.RefreshTokenDAO
 import org.delcom.dao.UserDAO
-import org.delcom.entities.Todo
+import org.delcom.entities.JadwalKuliah
+import org.delcom.entities.Kegiatan
 import org.delcom.entities.RefreshToken
 import org.delcom.entities.User
 import org.jetbrains.exposed.sql.Transaction
@@ -31,14 +33,32 @@ fun refreshTokenDAOToModel(dao: RefreshTokenDAO) = RefreshToken(
     dao.createdAt,
 )
 
-fun todoDAOToModel(dao: TodoDAO) = Todo(
-    id = dao.id.value.toString(),
-    userId = dao.userId.toString(),
-    title = dao.title,
-    description = dao.description,
-    isDone = dao.isDone,
-    cover = dao.cover,
-    urgency = dao.urgency,    // ← tambah ini
+fun jadwalKuliahDAOToModel(dao: JadwalKuliahDAO) = JadwalKuliah(
+    id         = dao.id.value.toString(),
+    userId     = dao.userId.toString(),
+    mataKuliah = dao.mataKuliah,
+    dosen      = dao.dosen,
+    hari       = dao.hari,
+    jamMulai   = dao.jamMulai,
+    jamSelesai = dao.jamSelesai,
+    ruangan    = dao.ruangan,
+    semester   = dao.semester,
+    keterangan = dao.keterangan,
+    cover      = dao.cover,
+    createdAt  = dao.createdAt,
+    updatedAt  = dao.updatedAt,
+)
+
+fun kegiatanDAOToModel(dao: KegiatanDAO) = Kegiatan(
+    id        = dao.id.value.toString(),
+    userId    = dao.userId.toString(),
+    judul     = dao.judul,
+    deskripsi = dao.deskripsi,
+    kategori  = dao.kategori,
+    tanggal   = dao.tanggal,
+    waktu     = dao.waktu,
+    lokasi    = dao.lokasi,
+    cover     = dao.cover,
     createdAt = dao.createdAt,
-    updatedAt = dao.updatedAt
+    updatedAt = dao.updatedAt,
 )
