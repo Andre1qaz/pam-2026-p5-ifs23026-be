@@ -2,38 +2,27 @@ package org.delcom.module
 
 import org.delcom.repositories.*
 import org.delcom.services.AuthService
-import org.delcom.services.TodoService
+import org.delcom.services.JadwalKuliahService
+import org.delcom.services.KegiatanService
 import org.delcom.services.UserService
 import org.koin.dsl.module
 
 fun appModule(jwtSecret: String) = module {
-    // User Repository
-    single<IUserRepository> {
-        UserRepository()
-    }
+    // User
+    single<IUserRepository>         { UserRepository() }
+    single                          { UserService(get(), get()) }
 
-    // User Service
-    single {
-        UserService(get(),get())
-    }
+    // Refresh Token
+    single<IRefreshTokenRepository> { RefreshTokenRepository() }
 
-    // Refresh Token Repository
-    single<IRefreshTokenRepository> {
-        RefreshTokenRepository()
-    }
+    // Auth
+    single                          { AuthService(jwtSecret, get(), get()) }
 
-    // Auth Service
-    single {
-        AuthService(jwtSecret,get(), get())
-    }
+    // Jadwal Kuliah
+    single<IJadwalKuliahRepository> { JadwalKuliahRepository() }
+    single                          { JadwalKuliahService(get(), get()) }
 
-    // Plant Repository
-    single<ITodoRepository> {
-        TodoRepository()
-    }
-
-    // Plant Service
-    single {
-        TodoService(get(),get())
-    }
+    // Kegiatan
+    single<IKegiatanRepository>     { KegiatanRepository() }
+    single                          { KegiatanService(get(), get()) }
 }

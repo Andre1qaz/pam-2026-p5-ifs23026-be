@@ -10,115 +10,86 @@ import org.delcom.data.AppException
 import org.delcom.data.ErrorResponse
 import org.delcom.helpers.JWTConstants
 import org.delcom.helpers.parseMessageToMap
-import org.delcom.services.TodoService
+import org.delcom.services.JadwalKuliahService
+import org.delcom.services.KegiatanService
 import org.delcom.services.AuthService
 import org.delcom.services.UserService
 import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
-    val todoService: TodoService by inject()
-    val authService: AuthService by inject()
-    val userService: UserService by inject()
+    val authService        : AuthService         by inject()
+    val userService        : UserService         by inject()
+    val jadwalKuliahService: JadwalKuliahService by inject()
+    val kegiatanService    : KegiatanService     by inject()
 
     install(StatusPages) {
-        // Tangkap AppException
         exception<AppException> { call, cause ->
-            val dataMap: Map<String, List<String>> = parseMessageToMap(cause.message)
-
+            val dataMap = parseMessageToMap(cause.message)
             call.respond(
-                status = HttpStatusCode.fromValue(cause.code),
-                message = ErrorResponse(
-                    status = "fail",
+                HttpStatusCode.fromValue(cause.code),
+                ErrorResponse(
+                    status  = "fail",
                     message = if (dataMap.isEmpty()) cause.message else "Data yang dikirimkan tidak valid!",
-                    data = if (dataMap.isEmpty()) null else dataMap.toString()
+                    data    = if (dataMap.isEmpty()) null else dataMap.toString()
                 )
             )
         }
-
-        // Tangkap semua Throwable lainnya
         exception<Throwable> { call, cause ->
             call.respond(
-                status = HttpStatusCode.fromValue(500),
-                message = ErrorResponse(
-                    status = "error",
-                    message = cause.message ?: "Unknown error",
-                    data = ""
-                )
+                HttpStatusCode.fromValue(500),
+                ErrorResponse("error", cause.message ?: "Unknown error", "")
             )
         }
     }
 
     routing {
         get("/") {
-            call.respondText("API telah berjalan. Dibuat oleh Andre komting.")
+            call.respondText("Kampus Manager API – by IFS23026")
         }
 
-        // Route Auth
+        // ── Auth ──────────────────────────────────────────────────────────
         route("/auth") {
-            post("/login") {
-                authService.postLogin(call)
-            }
-            post("/register") {
-                authService.postRegister(call)
-            }
-            post("/refresh-token") {
-                authService.postRefreshToken(call)
-            }
-
-            post("/logout") {
-                authService.postLogout(call)
-            }
+            post("/login")         { authService.postLogin(call) }
+            post("/register")      { authService.postRegister(call) }
+            post("/refresh-token") { authService.postRefreshToken(call) }
+            post("/logout")        { authService.postLogout(call) }
         }
 
         authenticate(JWTConstants.NAME) {
-            // Route User
+            // ── Users ──────────────────────────────────────────────────────
             route("/users") {
-                get("/me") {
-                    userService.getMe(call)
-                }
-                put("/me") {
-                    userService.putMe(call)
-                }
-                put("/me/password") {
-                    userService.putMyPassword(call)
-                }
-                put("/me/photo") {
-                    userService.putMyPhoto(call)
-                }
+                get("/me")           { userService.getMe(call) }
+                put("/me")           { userService.putMe(call) }
+                put("/me/password")  { userService.putMyPassword(call) }
+                put("/me/photo")     { userService.putMyPhoto(call) }
             }
 
-            // Route Todos
-            route("/todos") {
-                get {
-                    todoService.getAll(call)
-                }
-                post {
-                    todoService.post(call)
-                }
-                get("/{id}") {
-                    todoService.getById(call)
-                }
-                put("/{id}") {
-                    todoService.put(call)
-                }
-                put("/{id}/cover") {
-                    todoService.putCover(call)
-                }
-                delete("/{id}") {
-                    todoService.delete(call)
-                }
+            // ── Jadwal Kuliah ──────────────────────────────────────────────
+            route("/jadwal-kuliahs") {
+                get                  { jadwalKuliahService.getAll(call) }
+                post                 { jadwalKuliahService.post(call) }
+                get("/{id}")         { jadwalKuliahService.getById(call) }
+                put("/{id}")         { jadwalKuliahService.put(call) }
+                put("/{id}/cover")   { jadwalKuliahService.putCover(call) }
+                delete("/{id}")      { jadwalKuliahService.delete(call) }
+            }
+
+            // ── Kegiatan ───────────────────────────────────────────────────
+            route("/kegiatans") {
+                get                  { kegiatanService.getAll(call) }
+                post                 { kegiatanService.post(call) }
+                get("/{id}")         { kegiatanService.getById(call) }
+                put("/{id}")         { kegiatanService.put(call) }
+                put("/{id}/cover")   { kegiatanService.putCover(call) }
+                delete("/{id}")      { kegiatanService.delete(call) }
             }
         }
 
+        // ── Public image endpoints ─────────────────────────────────────────
         route("/images") {
-            get("users/{id}") {
-                userService.getPhoto(call)
-            }
-
-            get("todos/{id}") {
-                todoService.getCover(call)
-            }
+            get("users/{id}")          { userService.getPhoto(call) }
+            get("jadwal-kuliahs/{id}") { jadwalKuliahService.getCover(call) }
+            get("kegiatans/{id}")      { kegiatanService.getCover(call) }
         }
-
     }
 }
